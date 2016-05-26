@@ -1,31 +1,38 @@
-long double pow2(long double a,int exp) {
-	if(exp == 0) return 1;
-	else if(exp > 1){
-		return pow2(a,exp - 1) * a;	
+static const double cCoeff[10] = {
+	-0.00000000000000015600, // 1/18!
+	 0.00000000000004779477, // 1/16!
+	-0.00000000001147074559, // 1/14!
+	 0.00000000208767569878, // 1/12!
+	-0.00000027557319223985, // 1/10!
+	 0.00002480158730158730, // 1/8!
+	-0.00138888888888888888, // 1/6!
+	 0.04166666666666666666, // 1/4!
+	-0.50000000000000000000, // 1/2!
+	 1.0};
+static const double sCoeff[11] = {
+	 0.00000000000000000001, // 1/21!
+	-0.00000000000000000822, // 1/19! <-- entspricht 1e-17 für double
+	 0.00000000000000281145, // 1/17!
+	-0.00000000000076471637, // 1/15!
+	 0.00000000016059043836, // 1/13!
+	-0.00000002505210838544, // 1/11!
+	 0.00000275573192239858, // 1/9!	   
+	-0.00019841269841269841, // 1/7!	  
+	 0.00833333333333333333, // 1/5!
+	-0.16666666666666666666, // 1/3!
+	 1.0};
+
+double t_sincos(double x_2, int n, const double *coeff){
+	double y;
+	for(y = *coeff; 0 <= --n;){
+		y = y * x_2 + * ++coeff;
 	}
-	return a;
+	return y;
 }
-long int fak(int n) {
-  if (n == 0)
-    return 1;
-  else
-    return (n * fak(n-1));
+
+double tsin(double x){
+	return (x * t_sincos(x*x, 10, sCoeff));
 }
-double t_sincos(long double x, int n, int start){
-	long double sinx = 0.0;
-	int nPeriod = start;
-	int vz = 1;	
-	while(n != 0){
-		sinx += (vz * (pow2(x,nPeriod) / fak(nPeriod)));
-		vz *= -1;
-		nPeriod += 2;
-		n--;
-	}
-	return sinx;
-}
-double tsin(long double x, int n){
-	return t_sincos(x,n,1);
-}
-double tcos(long double x, int n){
-	return t_sincos(x,n,0);
+double tcos(double x){
+	return (1 * t_sincos(x*x, 9, cCoeff));
 }
