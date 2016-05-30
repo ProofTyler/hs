@@ -9,8 +9,7 @@ static const double cCoeff[10] = {
 	 0.04166666666666666666, // 1/4!
 	-0.50000000000000000000, // 1/2!
 	 1.0};
-static const double sCoeff[11] = {
-	 0.00000000000000000001, // 1/21!
+static const double sCoeff[10] = {
 	-0.00000000000000000822, // 1/19! <-- entspricht 1e-17 für double
 	 0.00000000000000281145, // 1/17!
 	-0.00000000000076471637, // 1/15!
@@ -31,7 +30,7 @@ double t_sincos(double x_2, int n, const double *coeff){
 }
 
 double tsin(double x){
-	return (x * t_sincos(x*x, 10, sCoeff));
+	return (x * t_sincos(x*x, 9, sCoeff));
 }
 double tcos(double x){
 	return (1 * t_sincos(x*x, 9, cCoeff));

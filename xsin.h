@@ -1,5 +1,5 @@
 /*#include "xmath.h"*/
-#include <math.h>
+//#include <math.h>
 static const double c[8] = {
 	-0.000000000011470879,
 	 0.000000002087712071,
@@ -48,6 +48,7 @@ double _Sin(double x, unsigned int qoff){
 	default:
 		 {	
 	*/
+		//0.00000031391647865048
 		double g;
 		long quad;
 		/*
@@ -63,6 +64,17 @@ double _Sin(double x, unsigned int qoff){
 		qoff += (unsigned long)quad & 0x3;
 		g = (double)quad;
 		g = (x - g * c1) - g * c2;
+
+		
+
+		/*
+		double z = 6-(4*c1);
+		double testG = g+(c1*4);
+		double testZ = z+(c1*4);
+		printf("g = %.17lf\n", testG);
+		printf("z = %.17lf\n", testZ);
+		*/
+
 		/*
 		if ((g < 0.0 ? -g : g) < _Rteps._D)
 			{	

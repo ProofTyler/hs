@@ -1,10 +1,11 @@
 #include <stdio.h>
+#include <math.h>
 #include "xsin.h"
 #include "tsin.h"
 
 int main() {
-	double x = 0.0;
-	while (x < 2){
+	double x = 8;
+
 		double sin_t = tsin(x);
 		double cos_t = tcos(x);
 
@@ -29,7 +30,8 @@ int main() {
 		printf("sin(%lf) = %.16f\n",x,sin_m);
 		printf("cos(%lf) = %.16f\n",x,cos_m);
 		printf("--------------------------\n");
-		x += 0.1;
-	}
+
+
+	
 	return 0;
 }
