@@ -1,4 +1,4 @@
-static const double cCoeff[10] = {
+static const double cos_c[10] = {
 	-0.00000000000000015600, // 1/18!
 	 0.00000000000004779477, // 1/16!
 	-0.00000000001147074559, // 1/14!
@@ -9,8 +9,8 @@ static const double cCoeff[10] = {
 	 0.04166666666666666666, // 1/4!
 	-0.50000000000000000000, // 1/2!
 	 1.0};
-static const double sCoeff[10] = {
-	-0.00000000000000000822, // 1/19! <-- entspricht 1e-17 für double
+static const double sin_c[10] = {
+	-0.00000000000000000822, // 1/19! 
 	 0.00000000000000281145, // 1/17!
 	-0.00000000000076471637, // 1/15!
 	 0.00000000016059043836, // 1/13!
@@ -20,18 +20,65 @@ static const double sCoeff[10] = {
 	 0.00833333333333333333, // 1/5!
 	-0.16666666666666666666, // 1/3!
 	 1.0};
+static const double pi1 = 3294198.0 / 2097152.0; // pi halbe
+static const double pi2  = 3.139164786504813217e-7; // pi halbe nachkommastelle
+static const double pi3 = 0.63661977236758134308; // 1/(pi/2) -> Genauer als durch pi halbe
+static const double pi4 = 0.78539800643920898437; // pi Viertel
 
-double t_sincos(double x_2, int n, const double *coeff){
+
+double _sincos(double x, const double *coeff, int n){
 	double y;
-	for(y = *coeff; 0 <= --n;){
-		y = y * x_2 + * ++coeff;
-	}
+	/*
+	- Taylor-Reihe als Schleife
+	- wir beginnen mit dem letzten glied 
+	*/
+	for (y = *coeff; 0 <= --n;)
+		y = y * x + *++coeff;
 	return y;
 }
 
-double tsin(double x){
-	return (x * t_sincos(x*x, 9, sCoeff));
+
+double x_shifted(double x, int isCos){
+	double g;
+	g = x * pi3; // Anzahl pi halbe in x
+	
+	if(0 < g) 	g = (long)(g + 0.5); // Aufrunden wenn wert positiv
+	else 		g = (long)(g - 0.5); // Abrunden wenn wert negativ
+	
+	/*
+	- Verschieben großen x-Wert nahe der Nullstelle 
+	- Im Bereich -pi/4 bis +pi/4 (-0.78 bis 0.78)
+	- Jedoch mit mehr Genauigkeit durch mehr nachkommastellen
+	*/
+	g = (x - g * pi1) - (g * pi2);
+	printf("%.16f\n", g);
+	
+	/*
+	Wenn Sinux x ziwischen -0,78 und 0,78 dann verwende sinus Coeffizienten
+	ansonsten cosinus Coeffizienten
+	*/
+	if(!isCos){
+		if(x > -pi4 && x < pi4 )
+			g *=_sincos(g*g, sin_c, 9);
+		else					
+			g = _sincos(g*g, cos_c, 9);
+	}else{
+		if(x > -pi4 && x < pi4 )
+			g =_sincos(g*g, cos_c, 9);
+		else					
+			g *=_sincos(g*g, sin_c, 9);
+	}
+	return g;
 }
+
+double tsin(double x){
+	double g = x_shifted(x,0);
+	if(x < -pi4) g = g * -1;
+	return g;
+}
+
 double tcos(double x){
-	return (1 * t_sincos(x*x, 9, cCoeff));
+	double g = x_shifted(x,1);
+	if(x > pi4) g = g * -1;
+	return g;
 }

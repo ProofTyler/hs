@@ -30,6 +30,7 @@ double _Poly(double x, const double *tab, int n){
 
 	for (y = *tab; 0 <= --n; )
 		y = y * x + *++tab;
+	
 	return (y);
 	}
 
@@ -51,30 +52,15 @@ double _Sin(double x, unsigned int qoff){
 		//0.00000031391647865048
 		double g;
 		long quad;
-		/*
-		if (x < -HUGE_RAD || HUGE_RAD < x)
-			{
-			g = x / twopi;
-			_Dint(&g, 0);
-			x -= g * twopi;
-			}
-		*/
 		g = x * twobypi;
+
 		quad = (long)(0 < g ? g + 0.5 : g - 0.5);
+
 		qoff += (unsigned long)quad & 0x3;
 		g = (double)quad;
+
 		g = (x - g * c1) - g * c2;
-
 		
-
-		/*
-		double z = 6-(4*c1);
-		double testG = g+(c1*4);
-		double testZ = z+(c1*4);
-		printf("g = %.17lf\n", testG);
-		printf("z = %.17lf\n", testZ);
-		*/
-
 		/*
 		if ((g < 0.0 ? -g : g) < _Rteps._D)
 			{	
