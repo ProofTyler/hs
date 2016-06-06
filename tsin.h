@@ -20,10 +20,9 @@ static const double sin_c[10] = {
 	 0.00833333333333333333, // 1/5!
 	-0.16666666666666666666, // 1/3!
 	 1.0};
-static const double pi1 = 3294198.0 / 2097152.0; // pi halbe
-static const double pi2  = 3.139164786504813217e-7; // pi halbe nachkommastelle
+static const double c1 = 3294198.0 / 2097152.0; // pi halbe
+static const double c2  = 3.139164786504813217e-7; // pi halbe nachkommastelle
 static const double pi3 = 0.63661977236758134308; // 1/(pi/2) -> Genauer als durch pi halbe
-static const double pi4 = 0.78539800643920898437; // pi Viertel
 
 
 double _sincos(double x, const double *coeff, int n){
@@ -38,47 +37,33 @@ double _sincos(double x, const double *coeff, int n){
 }
 
 
-double x_shifted(double x, int isCos){
+double x_shifted(double x, unsigned int qoff){
 	double g;
 	g = x * pi3; // Anzahl pi halbe in x
 	
-	if(0 < g) 	g = (long)(g + 0.5); // Aufrunden wenn wert positiv
-	else 		g = (long)(g - 0.5); // Abrunden wenn wert negativ
-	
+	if(0 < g) 	g = (int)(g + 0.5); // Aufrunden wenn wert positiv
+	else 		g = (int)(g - 0.5); // Abrunden wenn wert negativ
+
+	qoff += (unsigned int)g & 0x3;
+
 	/*
 	- Verschieben großen x-Wert nahe der Nullstelle 
-	- Im Bereich -pi/4 bis +pi/4 (-0.78 bis 0.78)
-	- Jedoch mit mehr Genauigkeit durch mehr nachkommastellen
+	- Jedoch mit doppelter Genauigkeit durch zweite Variable, welcher Rest enthält
 	*/
-	g = (x - g * pi1) - (g * pi2);
-	printf("%.16f\n", g);
+	g = (x - g * c1) - (g * c2);
+
+	if (qoff & 0x1) g =  _sincos(g*g, cos_c, 9);	//cos
+	else 			g *= _sincos(g*g, sin_c, 9);	//sin
 	
-	/*
-	Wenn Sinux x ziwischen -0,78 und 0,78 dann verwende sinus Coeffizienten
-	ansonsten cosinus Coeffizienten
-	*/
-	if(!isCos){
-		if(x > -pi4 && x < pi4 )
-			g *=_sincos(g*g, sin_c, 9);
-		else					
-			g = _sincos(g*g, cos_c, 9);
-	}else{
-		if(x > -pi4 && x < pi4 )
-			g =_sincos(g*g, cos_c, 9);
-		else					
-			g *=_sincos(g*g, sin_c, 9);
-	}
-	return g;
+	return (qoff & 0x2 ? -g : g);
 }
 
 double tsin(double x){
-	double g = x_shifted(x,0);
-	if(x < -pi4) g = g * -1;
-	return g;
+	x = x_shifted(x,0);
+	return x;
 }
 
 double tcos(double x){
-	double g = x_shifted(x,1);
-	if(x > pi4) g = g * -1;
-	return g;
+	x = x_shifted(x,1);
+	return x;
 }
